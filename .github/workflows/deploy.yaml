@@ -17,7 +17,8 @@ jobs:
       - name: Set up Docker to use Minikube's environment
         run: |
           minikube start --driver=docker  # Ensure Minikube is running
-          eval $(minikube docker-env)     # Set Docker to use Minikube
+          # Use PowerShell commands for Windows instead of eval
+          minikube docker-env | Invoke-Expression
 
       - name: Build Client Docker image
         working-directory: ./app/client

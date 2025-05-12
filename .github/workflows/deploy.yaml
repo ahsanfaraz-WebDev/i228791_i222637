@@ -1,57 +1,57 @@
-name: Build and Deploy to Minikube
-
+name: Docker Login and Build Test
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
-  build-deploy:
+  docker-login-test:
     runs-on: self-hosted
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Minikube
+      - name: Try direct Docker login
         run: |
-          minikube start --driver=docker
+          # First test with username and password directly
+          # Replace this with your actual password when testing
+          docker login -u ahsanfaraz -p yourpasswordhere
 
-      - name: Set up Docker to use Minikube's environment
-        run: |
-          echo "Configuring Docker to use Minikube's daemon..."
-          minikube docker-env | Invoke-Expression
+          # Check login status
+          if ($?) {
+            echo "Direct login successful"
+          } else {
+            echo "Direct login failed - check credentials"
+            exit 1
+          }
 
-      - name: Login to Docker Hub
+      - name: Build simple test image
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          # Create a simple Dockerfile for testing
+          @"
+          FROM alpine:latest
+          CMD ["echo", "Hello World"]
+          "@ | Out-File -FilePath ./test.Dockerfile -Encoding ASCII
 
-      - name: Build Client Docker image
-        working-directory: ./app/client
-        run: |
-          docker build -t ahsanfaraz/gatherspace-client:latest .
+          # Build a test image
+          docker build -t ahsanfaraz/test-image:latest -f ./test.Dockerfile .
 
-      - name: Build Server Docker image
-        working-directory: ./app/server
-        run: |
-          docker build -t ahsanfaraz/gatherspace-server:latest .
+          # Check if build was successful
+          if ($?) {
+            echo "Build successful"
+          } else {
+            echo "Build failed"
+            exit 1
+          }
 
-      - name: Push Docker images to Docker Hub
+      - name: Push test image
         run: |
-          docker push ahsanfaraz/gatherspace-client:latest
-          docker push ahsanfaraz/gatherspace-server:latest
+          # Try to push the test image
+          docker push ahsanfaraz/test-image:latest
 
-      - name: Deploy to Minikube
-        run: |
-          kubectl apply -f kubernetes/namespace.yaml
-          kubectl apply -f kubernetes/mongodb.yaml
-          kubectl apply -f kubernetes/backend.yaml
-          kubectl apply -f kubernetes/frontend.yaml
-          kubectl rollout status -n gatherspace deployment/client
-          kubectl rollout status -n gatherspace deployment/server
-
-      - name: Enable ingress if not already enabled
-        run: |
-          minikube addons enable ingress
-          echo "Application is being deployed. Run 'minikube tunnel' in a separate terminal to access it at http://127.0.0.1"
+          # Check if push was successful
+          if ($?) {
+            echo "Push successful"
+          } else {
+            echo "Push failed"
+            exit 1
+          }

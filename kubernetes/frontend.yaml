@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: ahsanfaraz1/gatherspace-client:latest
+          image: ahsanfaraz/gatherspace-client:latest
           ports:
             - containerPort: 80
           resources:

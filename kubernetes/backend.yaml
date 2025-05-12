@@ -34,7 +34,7 @@ spec:
     spec:
       containers:
         - name: server
-          image: ahsanfaraz1/gatherspace-server:latest
+          image: ahsanfaraz/gatherspace-server:latest
           ports:
             - containerPort: 8000
           env:

@@ -39,7 +39,7 @@ const EventForm = ({
       image: initialData.image || "",
     },
   });
-  
+
   return (
     <motion.form
       initial={{ opacity: 0 }}
@@ -145,11 +145,12 @@ const EventForm = ({
             {...register("category", { required: "Category is required" })}
             className="input"
           >
-            {categories.map((category) => (
-              <option key={category.value} value={category.value}>
-                {category.label}
-              </option>
-            ))}
+            {Array.isArray(categories) &&
+              categories.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
           </select>
           {errors.category && (
             <p className="mt-1 text-sm text-red-600">

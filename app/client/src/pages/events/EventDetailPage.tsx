@@ -34,7 +34,14 @@ const EventDetailPage = () => {
       try {
         setIsLoading(true);
         const response = await axios.get(`/api/events/${id}`);
-        setEvent(response.data);
+
+        // Ensure event data has all required properties
+        const eventData = response.data || {};
+        if (eventData.attendees && !Array.isArray(eventData.attendees)) {
+          eventData.attendees = [];
+        }
+
+        setEvent(eventData);
       } catch (err) {
         console.error("Error fetching event:", err);
         setError("Failed to load event details.");
@@ -315,14 +322,15 @@ const EventDetailPage = () => {
 
               {event.attendees && event.attendees.length > 0 ? (
                 <ul className="divide-y divide-gray-100">
-                  {event.attendees.map((attendee) => (
-                    <li key={attendee._id} className="py-3 flex items-center">
-                      <div className="bg-primary-100 rounded-full h-10 w-10 flex items-center justify-center text-primary-600 font-semibold mr-3">
-                        {attendee.name.charAt(0).toUpperCase()}
-                      </div>
-                      <span>{attendee.name}</span>
-                    </li>
-                  ))}
+                  {Array.isArray(event.attendees) &&
+                    event.attendees.map((attendee) => (
+                      <li key={attendee._id} className="py-3 flex items-center">
+                        <div className="bg-primary-100 rounded-full h-10 w-10 flex items-center justify-center text-primary-600 font-semibold mr-3">
+                          {attendee.name.charAt(0).toUpperCase()}
+                        </div>
+                        <span>{attendee.name}</span>
+                      </li>
+                    ))}
                 </ul>
               ) : (
                 <p className="text-gray-500 text-center py-3">

@@ -61,10 +61,14 @@ const EventsPage = () => {
         if (search) params.append("search", search);
 
         const response = await axios.get(`/api/events?${params.toString()}`);
-        setEvents(response.data);
+        // Ensure data is always an array
+        const eventsData = Array.isArray(response.data) ? response.data : [];
+        setEvents(eventsData);
       } catch (err) {
         console.error("Error fetching events:", err);
         setError("Failed to load events. Please try again.");
+        // Initialize with empty array on error
+        setEvents([]);
       } finally {
         setIsLoading(false);
       }
@@ -110,11 +114,12 @@ const EventsPage = () => {
                   onChange={(e) => setCategory(e.target.value)}
                   className="input"
                 >
-                  {categories.map((cat) => (
-                    <option key={cat.value} value={cat.value}>
-                      {cat.label}
-                    </option>
-                  ))}
+                  {Array.isArray(categories) &&
+                    categories.map((cat) => (
+                      <option key={cat.value} value={cat.value}>
+                        {cat.label}
+                      </option>
+                    ))}
                 </select>
               </div>
 

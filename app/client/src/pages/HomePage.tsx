@@ -44,10 +44,14 @@ const HomePage = () => {
         setIsLoading(true);
         // Only fetch a few upcoming events for the homepage
         const response = await axios.get("/api/events?limit=3");
-        setUpcomingEvents(response.data);
+        // Ensure data is always an array
+        const eventsData = Array.isArray(response.data) ? response.data : [];
+        setUpcomingEvents(eventsData);
       } catch (err) {
         console.error("Error fetching upcoming events:", err);
         setError("Failed to load upcoming events.");
+        // Initialize with empty array on error
+        setUpcomingEvents([]);
       } finally {
         setIsLoading(false);
       }
@@ -151,36 +155,37 @@ const HomePage = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredCategories.map((category, index) => (
-              <motion.div
-                key={category.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -5 }}
-                className="relative rounded-lg overflow-hidden shadow-md group h-64"
-              >
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                  <h3 className="text-xl font-semibold mb-2">
-                    {category.name}
-                  </h3>
-                  <Link
-                    to={category.url}
-                    className="inline-flex items-center text-white hover:text-primary-300 transition-colors"
-                  >
-                    <span>View events</span>
-                    <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </div>
-              </motion.div>
-            ))}
+            {Array.isArray(featuredCategories) &&
+              featuredCategories.map((category, index) => (
+                <motion.div
+                  key={category.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ y: -5 }}
+                  className="relative rounded-lg overflow-hidden shadow-md group h-64"
+                >
+                  <img
+                    src={category.image}
+                    alt={category.name}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                  <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                    <h3 className="text-xl font-semibold mb-2">
+                      {category.name}
+                    </h3>
+                    <Link
+                      to={category.url}
+                      className="inline-flex items-center text-white hover:text-primary-300 transition-colors"
+                    >
+                      <span>View events</span>
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </div>
+                </motion.div>
+              ))}
           </div>
         </div>
       </section>
@@ -221,7 +226,7 @@ const HomePage = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
+            {Array.isArray([
               {
                 icon: <Search className="h-10 w-10 text-primary-600" />,
                 title: "Discover Events",
@@ -240,22 +245,42 @@ const HomePage = () => {
                 description:
                   "Join events with just a click, engage with other attendees, and expand your network.",
               },
-            ].map((step, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.2 }}
-                viewport={{ once: true }}
-                className="bg-white p-6 rounded-xl shadow-sm text-center"
-              >
-                <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 mb-4">
-                  {step.icon}
-                </div>
-                <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
-                <p className="text-gray-600">{step.description}</p>
-              </motion.div>
-            ))}
+            ]) &&
+              [
+                {
+                  icon: <Search className="h-10 w-10 text-primary-600" />,
+                  title: "Discover Events",
+                  description:
+                    "Browse and filter events based on your interests, location, and availability.",
+                },
+                {
+                  icon: <CalendarDays className="h-10 w-10 text-primary-600" />,
+                  title: "Create Events",
+                  description:
+                    "Easily create and manage your own events, invite others, and grow your community.",
+                },
+                {
+                  icon: <Users className="h-10 w-10 text-primary-600" />,
+                  title: "Join & Connect",
+                  description:
+                    "Join events with just a click, engage with other attendees, and expand your network.",
+                },
+              ].map((step, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.2 }}
+                  viewport={{ once: true }}
+                  className="bg-white p-6 rounded-xl shadow-sm text-center"
+                >
+                  <div className="inline-flex items-center justify-center h-16 w-16 rounded-full bg-primary-100 mb-4">
+                    {step.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
+                  <p className="text-gray-600">{step.description}</p>
+                </motion.div>
+              ))}
           </div>
         </div>
       </section>

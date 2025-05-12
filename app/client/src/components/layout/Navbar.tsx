@@ -42,15 +42,19 @@ const Navbar = () => {
     { name: "Events", path: "/events" },
   ];
 
-  const authLinks = user
-    ? [
-        { name: "Dashboard", path: "/dashboard" },
-        { name: "Create Event", path: "/events/create" },
-      ]
-    : [
-        { name: "Login", path: "/login" },
-        { name: "Register", path: "/register" },
-      ];
+  // Ensure user state is valid before generating authLinks
+  let authLinks = [];
+  if (user) {
+    authLinks = [
+      { name: "Dashboard", path: "/dashboard" },
+      { name: "Create Event", path: "/events/create" },
+    ];
+  } else {
+    authLinks = [
+      { name: "Login", path: "/login" },
+      { name: "Register", path: "/register" },
+    ];
+  }
 
   const navbarClasses = `fixed w-full z-50 transition-all duration-300 ${
     isScrolled ? "bg-white shadow-md py-2" : "bg-black/40 backdrop-blur-sm py-4"
@@ -84,19 +88,20 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-8">
             {/* Main navigation links */}
             <div className="flex space-x-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`font-medium transition-colors duration-200 ${
-                    location.pathname === link.path
-                      ? activeTextColor
-                      : `${textColor} ${textHoverColor}`
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {Array.isArray(navLinks) &&
+                navLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`font-medium transition-colors duration-200 ${
+                      location.pathname === link.path
+                        ? activeTextColor
+                        : `${textColor} ${textHoverColor}`
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
             </div>
 
             {/* Auth navigation */}
@@ -191,32 +196,34 @@ const Navbar = () => {
           <div className="container-custom py-4 space-y-4">
             {/* Navigation links */}
             <div className="flex flex-col space-y-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className={`text-base font-medium px-2 py-1 rounded ${
-                    location.pathname === link.path
-                      ? "text-primary-600 bg-primary-50"
-                      : "text-gray-700 hover:text-primary-600"
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {Array.isArray(navLinks) &&
+                navLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={`text-base font-medium px-2 py-1 rounded ${
+                      location.pathname === link.path
+                        ? "text-primary-600 bg-primary-50"
+                        : "text-gray-700 hover:text-primary-600"
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                ))}
             </div>
 
             {/* Auth links */}
             <div className="pt-3 border-t border-gray-200 space-y-3">
-              {authLinks.map((link) => (
-                <Link
-                  key={link.path}
-                  to={link.path}
-                  className="block text-base font-medium px-2 py-1 text-gray-700 hover:text-primary-600"
-                >
-                  {link.name}
-                </Link>
-              ))}
+              {Array.isArray(authLinks) &&
+                authLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className="block text-base font-medium px-2 py-1 text-gray-700 hover:text-primary-600"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
 
               {user && (
                 <button

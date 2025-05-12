@@ -37,7 +37,7 @@ const EventList = ({
     );
   }
 
-  if (events.length === 0) {
+  if (!events || !Array.isArray(events) || events.length === 0) {
     return (
       <motion.div
         initial={{ opacity: 0 }}
@@ -51,9 +51,10 @@ const EventList = ({
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {events.map((event, index) => (
-        <EventCard key={event._id} event={event} index={index} />
-      ))}
+      {Array.isArray(events) &&
+        events.map((event, index) => (
+          <EventCard key={event._id} event={event} index={index} />
+        ))}
     </div>
   );
 };

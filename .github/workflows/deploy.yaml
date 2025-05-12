@@ -30,17 +30,17 @@ jobs:
       - name: Build Client Docker image
         working-directory: ./app/client
         run: |
-          docker build -t ahsanfaraz1/gatherspace-client:latest .
+          docker build -t ahsanfaraz/gatherspace-client:latest .
 
       - name: Build Server Docker image
         working-directory: ./app/server
         run: |
-          docker build -t ahsanfaraz1/gatherspace-server:latest .
+          docker build -t ahsanfaraz/gatherspace-server:latest .
 
       - name: Push Docker images to Docker Hub
         run: |
-          docker push ahsanfaraz1/gatherspace-client:latest
-          docker push ahsanfaraz1/gatherspace-server:latest
+          docker push ahsanfaraz/gatherspace-client:latest
+          docker push ahsanfaraz/gatherspace-server:latest
 
       - name: Deploy to Minikube
         run: |

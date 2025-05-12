@@ -14,43 +14,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Docker version and login test
+      - name: Login to Docker Hub
         run: |
-          # Check Docker version
-          docker --version
+          # Set variables directly in script to avoid any interpolation issues
+          $dockerUser = "ahsanfaraz1"
+          $env:DOCKER_PASSWORD = "${{ secrets.DOCKER_PASSWORD }}"
 
-          # Try login with regular password method (not recommended for production)
-          docker logout
-          docker login -u ahsanfaraz1 -p ${{ secrets.DOCKER_PASSWORD }}
+          # Login using environment variable
+          echo $env:DOCKER_PASSWORD | docker login --username $dockerUser --password-stdin
 
-          # Check login status
-          docker info
+          # Clear sensitive data
+          $env:DOCKER_PASSWORD = ""
 
       - name: Build Client Docker image
-        if: success()
         working-directory: ./app/client
         run: |
           docker build -t ahsanfaraz1/gatherspace-client:latest .
 
       - name: Build Server Docker image
-        if: success()
         working-directory: ./app/server
         run: |
           docker build -t ahsanfaraz1/gatherspace-server:latest .
 
       - name: Push Docker images to Docker Hub
-        if: success()
         run: |
           docker push ahsanfaraz1/gatherspace-client:latest
           docker push ahsanfaraz1/gatherspace-server:latest
 
       - name: Set up Minikube
-        if: success()
         run: |
           minikube start --driver=docker
 
       - name: Deploy to Minikube
-        if: success()
         run: |
           kubectl apply -f kubernetes/namespace.yaml
           kubectl apply -f kubernetes/mongodb.yaml
@@ -60,7 +55,6 @@ jobs:
           kubectl rollout status -n gatherspace deployment/server
 
       - name: Enable ingress if not already enabled
-        if: success()
         run: |
           minikube addons enable ingress
           echo "Application is being deployed. Run 'minikube tunnel' in a separate terminal to access it at http://127.0.0.1"

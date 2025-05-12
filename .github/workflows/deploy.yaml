@@ -14,11 +14,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker to use Minikube's environment
+      - name: Login to Docker Hub
         run: |
-          minikube start --driver=docker  # Ensure Minikube is running
-          # Use PowerShell commands for Windows instead of eval
-          minikube docker-env | Invoke-Expression
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Build Client Docker image
         working-directory: ./app/client
@@ -30,14 +28,14 @@ jobs:
         run: |
           docker build -t ahsanfaraz1/gatherspace-server:latest .
 
-      - name: Login to Docker Hub
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
       - name: Push Docker images to Docker Hub
         run: |
           docker push ahsanfaraz1/gatherspace-client:latest
           docker push ahsanfaraz1/gatherspace-server:latest
+
+      - name: Set up Minikube
+        run: |
+          minikube start --driver=docker
 
       - name: Deploy to Minikube
         run: |

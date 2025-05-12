@@ -4,49 +4,50 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   build-deploy:
-    runs-on: self-hosted  # This will use your local runner
+    runs-on: self-hosted # This will use your local runner
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Docker to use Minikube's environment
-      run: |
-        minikube start --driver=docker  # Ensure Minikube is running
-        eval $(minikube docker-env)     # Set Docker to use Minikube
+      - name: Set up Docker to use Minikube's environment
+        run: |
+          minikube start --driver=docker  # Ensure Minikube is running
+          eval $(minikube docker-env)     # Set Docker to use Minikube
 
-    - name: Build Client Docker image
-      working-directory: ./app/client
-      run: |
-        docker build -t ahsanfaraz1/gatherspace-client:latest .
+      - name: Build Client Docker image
+        working-directory: ./app/client
+        run: |
+          docker build -t ahsanfaraz1/gatherspace-client:latest .
 
-    - name: Build Server Docker image
-      working-directory: ./app/server
-      run: |
-        docker build -t ahsanfaraz1/gatherspace-server:latest .
+      - name: Build Server Docker image
+        working-directory: ./app/server
+        run: |
+          docker build -t ahsanfaraz1/gatherspace-server:latest .
 
-    - name: Login to Docker Hub
-      run: |
-        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+      - name: Login to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-    - name: Push Docker images to Docker Hub
-      run: |
-        docker push ahsanfaraz1/gatherspace-client:latest
-        docker push ahsanfaraz1/gatherspace-server:latest
+      - name: Push Docker images to Docker Hub
+        run: |
+          docker push ahsanfaraz1/gatherspace-client:latest
+          docker push ahsanfaraz1/gatherspace-server:latest
 
-    - name: Deploy to Minikube
-      run: |
-        kubectl apply -f kubernetes/namespace.yaml
-        kubectl apply -f kubernetes/mongodb.yaml
-        kubectl apply -f kubernetes/backend.yaml
-        kubectl apply -f kubernetes/frontend.yaml
-        kubectl rollout status -n gatherspace deployment/client
-        kubectl rollout status -n gatherspace deployment/server
+      - name: Deploy to Minikube
+        run: |
+          kubectl apply -f kubernetes/namespace.yaml
+          kubectl apply -f kubernetes/mongodb.yaml
+          kubectl apply -f kubernetes/backend.yaml
+          kubectl apply -f kubernetes/frontend.yaml
+          kubectl rollout status -n gatherspace deployment/client
+          kubectl rollout status -n gatherspace deployment/server
 
-    - name: Enable ingress if not already enabled
-      run: |
-        minikube addons enable ingress
-        echo "Application is being deployed. Run 'minikube tunnel' in a separate terminal to access it at http://127.0.0.1"
+      - name: Enable ingress if not already enabled
+        run: |
+          minikube addons enable ingress
+          echo "Application is being deployed. Run 'minikube tunnel' in a separate terminal to access it at http://127.0.0.1"

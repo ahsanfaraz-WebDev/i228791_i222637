@@ -14,7 +14,7 @@ jobs:
         run: |
           # First test with username and password directly
           # Replace this with your actual password when testing
-          docker login -u ahsanfaraz -p yourpasswordhere
+          docker login -u ahsanfaraz -p wajidhassan
 
           # Check login status
           if ($?) {

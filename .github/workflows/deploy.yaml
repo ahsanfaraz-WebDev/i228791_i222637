@@ -13,6 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Set up Minikube
+        run: |
+          minikube start --driver=docker
+
+      - name: Set up Docker to use Minikube's environment
+        run: |
+          echo "Configuring Docker to use Minikube's daemon..."
+          minikube docker-env | Invoke-Expression
+
       - name: Login to Docker Hub
         run: |
           # Login to Docker Hub with direct credentials
@@ -33,15 +42,6 @@ jobs:
           docker push ahsanfaraz/gatherspace-client:latest
           docker push ahsanfaraz/gatherspace-server:latest
 
-      - name: Set up Minikube
-        run: |
-          minikube start --driver=docker
-
-      - name: Set up Docker to use Minikube's environment
-        run: |
-          echo "Configuring Docker to use Minikube's daemon..."
-          minikube docker-env | Invoke-Expression
-
       - name: Deploy to Minikube
         run: |
           kubectl apply -f kubernetes/namespace.yaml
@@ -50,8 +50,3 @@ jobs:
           kubectl apply -f kubernetes/frontend.yaml
           kubectl rollout status -n gatherspace deployment/client
           kubectl rollout status -n gatherspace deployment/server
-
-      - name: Enable ingress if not already enabled
-        run: |
-          minikube addons enable ingress
-          echo "Application is being deployed. Run 'minikube tunnel' in a separate terminal to access it at http://127.0.0.1"
